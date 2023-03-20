@@ -1,0 +1,23 @@
+{
+  "name": "chatgpt-graphql-schema",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "UNLICENCED",
+  "engines": {
+    "npm": ">=9.0.0 <10.0.0",
+    "node": ">=18.0.0 <19.0.0"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "gpt-3-encoder": "^1.1.4",
+    "graphql": "^16.6.0",
+    "openai": "^3.2.1"
+  }
+}
