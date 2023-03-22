@@ -15,8 +15,8 @@ const CHATGPT_TIMEOUT = 30 * 1000; // 30 seconds
 
 const log = {
   error: (str) => console.error(chalk.red(str)),
-  info: (str) => console.info(chalk.white(str)),
-  debug: (str) => { if (process.env.SHOW_DEBUG === "true") console.info(chalk.dim(str)) },
+  info: (str) => console.info(chalk.white(`! ${str}`)),
+  debug: (str) => { if (process.env.HIDE_DEBUG !== "true") console.info(chalk.dim(str)) },
   response: (str) => console.info(chalk.bold(`< ${str}`)),
 }
 
@@ -110,7 +110,7 @@ while (true) {
   });
   var queryResultJson = await queryResult.json()
   const queryResultString = JSON.stringify(queryResultJson);
-  log.info(`GraphQL response: ${queryResultString}`);
+  log.info(`Response from GraphQL endpoint: ${queryResultString}`);
 
   if (queryResultJson.errors) {
     continue;
