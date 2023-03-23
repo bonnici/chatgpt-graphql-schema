@@ -59,10 +59,10 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 const queryPrompt = 'I am going to give you a GraphQL SDL schema document and ask you to generate GraphQL queries for me. ' + 
-  "Your responses should include a code block the full query text I should use to get the information I'm asking for.";
-const interpretPrompt = 'I am going to give you a GraphQL SDL schema document and ask you to explain the GraphQL query results ' +
-  'that I got back from the server. The explanations should be in plain English.';
-const schemaBlock = 'Here is the schema:\n```' + sdlString + '\n```';
+  "Your responses should include a code block with the full query text I should use to get the information I'm asking for.";
+const interpretPrompt = 'I am going to give you a GraphQL SDL schema document and ask you to explain the JSON response ' +
+  'that I get back from the server after I send a GraphQL request.';
+const schemaBlock = 'Here is the schema:\n```\n' + sdlString + '\n```';
 var queryMessages = [{ role: 'system', content: `${queryPrompt} ${schemaBlock}` }];
 var interpretMessages = [{ role: 'system', content: `${interpretPrompt} ${schemaBlock}` }];
 log.debug('Successfully initialised ChatGPT');
@@ -95,7 +95,7 @@ while (true) {
 
   log.response(queryChatMessage.content);
 
-  const codeBlocks = queryChatMessage.content.match(/```(graphql)?(?<query>[\s\S]+)```/);
+  const codeBlocks = queryChatMessage.content.match(/^```(graphql)?(?<query>(\n|.)*?)```$/m);
   const graphQlQuery = codeBlocks?.groups?.query;
   if (!graphQlQuery) {
     continue;
@@ -112,11 +112,15 @@ while (true) {
   const queryResultString = JSON.stringify(queryResultJson);
   log.info(`Response from GraphQL endpoint: ${queryResultString}`);
 
+  const queryAndResponse = `I sent this query:\n\`\`\`${graphQlQuery}\n\`\`\`\n and got this response:\n\`\`\`${queryResultString}\n\`\`\`\n`;
+  queryMessages.push({ role: 'user', content: queryAndResponse });
+
   if (queryResultJson.errors) {
     continue;
   }
 
-  interpretMessages.push({ role: 'user', content: `I sent this query:\n\`\`\`${graphQlQuery}\n\`\`\`\n and got this response:\n\`\`\`${queryResultString}\n\`\`\`\nWhat do the contents of that response mean in plain english?`});
+  interpretMessages.push({ role: 'user', content: queryAndResponse });
+  interpretMessages.push({ role: 'user', content: 'What do the JSON contents of that response mean in english?' });
   log.debug('Asking ChatGPT to interpret the results ...');
   var intepretChatMessage;
   try {
