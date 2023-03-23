@@ -32,87 +32,175 @@ OPENAI_API_KEY="key-here"
 
 ## Example output
 
-### Countries API
+### Using https://countries.trevorblades.com/ to chat about Oceanic countries.
 
-<details>
-PS D:\src\chatgpt-graphql-schema> npm start -- https://countries.trevorblades.com/
+````
+379 tokens in schema, each question will cost about 0.15 cents
 
-> chatgpt-graphql-schema@1.0.0 start
-> node index.js https://countries.trevorblades.com/
-
-! 379 tokens in schema, each question will cost about 0.15 cents
-Ask a question or type "exit" to quit
+User input:
 > what are the names of all the countries in oceania?
-< Here's the query to get the names of all countries in Oceania:
-```graphql
-query {
+
+GraphQL query from ChatGPT:
+Here's a GraphQL query to retrieve the names of all the countries in Oceania:
+
+```
+{
   continent(code: "OC") {
     countries {
       name
     }
   }
 }
-``` 
-Note that this assumes that Oceania has been assigned the code "OC" in the system. If not, replace "OC" with the correct 
-code for Oceania.
-! Response from GraphQL endpoint: {"data":{"continent":{"countries":[{"name":"American Samoa"},{"name":"Australia"},{"name":"Cook Islands"},{"name":"Fiji"},{"name":"Micronesia"},{"name":"Guam"},{"name":"Kiribati"},{"name":"Marshall Islands"},{"name":"Northern Mariana Islands"},{"name":"New Caledonia"},{"name":"Norfolk Island"},{"name":"Nauru"},{"name":"Niue"},{"name":"New Zealand"},{"name":"French Polynesia"},{"name":"Papua New Guinea"},{"name":"Pitcairn Islands"},{"name":"Palau"},{"name":"Solomon Islands"},{"name":"Tokelau"},{"name":"East Timor"},{"name":"Tonga"},{"name":"Tuvalu"},{"name":"U.S. Minor Outlying Islands"},{"name":"Vanuatu"},{"name":"Wallis and Futuna"},{"name":"Samoa"}]}}}
-< This query is asking the server to return the names of all countries that belong to the continent with the code "OC". 
-The server has responded with a list of all countries belonging to the Oceanic continent, along with their names, in 
-alphabetical order. The names of the countries are enclosed in curly brackets and separated by commas.
-Ask a question or type "exit" to quit
+```
+
+In this query, we are first querying the `continent` named "OC" (which is the code for Oceania), and then we are asking for the `name` fields of all the `countries` in that continent.
+
+Response from GraphQL endpoint: 
+{"data":{"continent":{"countries":[{"name":"American Samoa"},{"name":"Australia"},{"name":"Cook Islands"},{"name":"Fiji"},{"name":"Micronesia"},{"name":"Guam"},{"name":"Kiribati"},{"name":"Marshall Islands"},{"name":"Northern Mariana Islands"},{"name":"New Caledonia"},{"name":"Norfolk Island"},{"name":"Nauru"},{"name":"Niue"},{"name":"New Zealand"},{"name":"French Polynesia"},{"name":"Papua New Guinea"},{"name":"Pitcairn Islands"},{"name":"Palau"},{"name":"Solomon Islands"},{"name":"Tokelau"},{"name":"East Timor"},{"name":"Tonga"},{"name":"Tuvalu"},{"name":"U.S. Minor Outlying Islands"},{"name":"Vanuatu"},{"name":"Wallis and Futuna"},{"name":"Samoa"}]}}}
+
+ChatGPT's interpretation of response:
+The JSON response is a list of countries in the "OC" (Oceania) continent. The response includes an array of objects, where each object corresponds to a country in Oceania and has a "name" field indicating the name of the country.
+
+User input:
 > what currency do they use in australia?
-< Here's the query to get the currency used in Australia:
-```graphql
-query {
+
+GraphQL query from ChatGPT:
+Here's a GraphQL query to retrieve the currency used in Australia:
+
+```
+{
   country(code: "AU") {
     currency
   }
 }
 ```
-Note that this assumes that Australia has been assigned the code "AU" in the system. If not, replace "AU" with the 
-correct code for Australia.
-! Response from GraphQL endpoint: {"data":{"country":{"currency":"AUD"}}}
-< This query is asking the server to return the currency used in the country with the code "AU". The server has 
-responded with a JSON object that contains one field, "currency", with the value of "AUD". This means that the currency 
-of Australia is the Australian Dollar (AUD).
-Ask a question or type "exit" to quit
+
+In this query, we are first querying the `country` with the `code` "AU" (which is the two-letter country code for Australia), and then we are asking for the `currency` field of that country.
+
+Response from GraphQL endpoint: 
+{"data":{"country":{"currency":"AUD"}}}
+
+ChatGPT's interpretation of response:
+The JSON response is returning the currency for the country with code "AU" (Australia). The response includes an object with a "currency" field, which indicates that the currency of Australia is "AUD" (Australian Dollar).
+
+User input: 
 > what other countries use that currency?
-< Here's the query to get the names of all the countries that use the same currency as Australia:
-```graphql
-query {
-  countries(filter: {currency: {eq: "AUD"}}) {
-    name
-  }
-}
-``` 
-Note that this assumes that the currency used in Australia is AUD. If not, replace "AUD" with the appropriate currency 
-code.
-! Response from GraphQL endpoint: {"data":{"countries":[{"name":"Australia"},{"name":"Cocos [Keeling] Islands"},{"name":"Christmas Island"},{"name":"Heard Island and McDonald Islands"},{"name":"Kiribati"},{"name":"Norfolk Island"},{"name":"Nauru"},{"name":"Tuvalu"}]}}
-< This query is asking the server to return the names of all countries whose currency is "AUD". The server has responded 
-with a list of all such countries along with their names, enclosed in curly brackets and separated by commas. The names 
-of the countries are listed in alphabetical order. This means that there are eight countries which use the Australian 
-Dollar (AUD) as their currency: Australia, Cocos [Keeling] Islands, Christmas Island, Heard Island and McDonald Islands, 
-Kiribati, Norfolk Island, Nauru, and Tuvalu.
-Ask a question or type "exit" to quit
-> exit
-</details>
 
-### Barcelona public transport API
-
-````
-PS D:\src\chatgpt-graphql-schema> npm start -- https://barcelona-urban-mobility-graphql-api.netlify.app/graphql
-
-> chatgpt-graphql-schema@1.0.0 start
-> node index.js https://barcelona-urban-mobility-graphql-api.netlify.app/graphql
-
-! 2262 tokens in schema, each question will cost about 0.90 cents
-Ask a question or type "exit" to quit
-> where is the Florida metro station and what lines are on it?
-< Here's a query that should give you the information you need:
+GraphQL query from ChatGPT:
+Here's a GraphQL query to retrieve the other countries that use the same currency as Australia:
 
 ```
 {
-  metroStation(findBy: { name: "Florida" }) {
+  countries(filter: { currency: { eq: "AUD" } }) {
+    name
+  }
+}
+```
+
+In this query, we are first querying the `countries` field and applying a filter to only return `countries` that have a `currency` value that is equal to "AUD". Then, we are asking for the `name` field of each country that matches this filter.
+
+Response from GraphQL endpoint: 
+{"data":{"countries":[{"name":"Australia"},{"name":"Cocos [Keeling] Islands"},{"name":"Christmas Island"},{"name":"Heard Island and McDonald Islands"},{"name":"Kiribati"},{"name":"Norfolk Island"},{"name":"Nauru"},{"name":"Tuvalu"}]}}
+
+ChatGPT's interpretation of response:
+The JSON response is returning the names of countries that have a currency code that equals "AUD" (Australian Dollar). The response includes an array of objects, where each object corresponds to a country and has a single "name" field indicating the name of the country. The response indicates that there are 8 countries which use Australian Dollar (AUD) as their currency.   
+
+User input: 
+> what's the ID of Kiribati?
+
+GraphQL query from ChatGPT:
+Here's a GraphQL query to retrieve the ID of Kiribati:
+
+```
+{
+  country(code: "KI") {
+    code
+  }
+}
+```
+
+In this query, we are first querying the `country` with the `code` "KI", which is the two-letter country code for Kiribati, and then asking for its `code`, which is its unique identifier in this schema.
+
+Response from GraphQL endpoint: 
+{"data":{"country":{"code":"KI"}}}
+
+ChatGPT's interpretation of response:
+The JSON response is returning the code for the country with code "KI" (Kiribati). The response includes an object with a "code" field, which indicates that Kiribati's code is "KI".
+
+User input: 
+> give me all the information you have on that country
+
+GraphQL query from ChatGPT:
+Here's a GraphQL query to retrieve all available information for Kiribati:
+
+```
+{
+  country(code: "KI") {
+    name
+    native
+    capital
+    emoji
+    currency
+    languages {
+      code
+      name
+      native
+    }
+    continent {
+      name
+    }
+    states {
+      code
+      name
+    }
+    phone
+  }
+}
+```
+
+In this query, we are first querying the `country` with the `code` "KI", which is the two-letter country code for Kiribati, and then asking for the following fields to get all the available information:
+
+- `name`: the name of the country.
+- `native`: the name of the country in its native language.
+- `capital`: the name of the country's capital city.
+- `emoji`: the emoji flag for the country.
+- `currency`: the currency used in the country.
+- `languages`: an array of objects representing the languages spoken in the country. For each language, we are also retrieving its `code`, `name`, and `native` name (in the language itself).
+- `continent`: an object representing the continent to which the country belongs. In this case, we are only retrieving the `name` of the continent.
+- `states`: an array of objects representing the states, provinces, or territories of the country (if applicable). For each state, we are retrieving its `code` and `name`.
+- `phone`: the dialing code for the country.
+
+Response from GraphQL endpoint: 
+{"data":{"country":{"name":"Kiribati","native":"Kiribati","capital":"South Tarawa","emoji":"🇰🇮","cu urrency":"AUD","languages":[{"code":"en","name":"English","native":"English"}],"continent":{"name":"Oceania"},"states":[],"phone":"686"}}}
+
+ChatGPT's interpretation of response:
+The JSON response is returning various pieces of information about Kiribati. The response includes an object with the following fields:
+
+- "name": indicates that the name of the country is "Kiribati".
+- "native": indicates that the native name of the country is also "Kiribati".
+- "capital": indicates that the capital city of Kiribati is "South Tawara".
+- "emoji": indicates the flag emoji for Kiribati, which is 🇰🇮.
+- "currency": indicates that the currency used in Kiribati is "AUD" (Australian Dollar).
+- "languages": an array of objects containing language information, where each object has the "code", "name", and "native" fields. In this case, Kiribati has only one official language, which is English (code "en").
+- "continent": indicates that Kiribati is located in the "Oceania" continent.
+- "states": an empty array, which means that Kiribati does not have any states or provinces.
+- "phone": indicates the country calling code for Kiribati, which is "686".
+````
+
+### Using https://barcelona-urban-mobility-graphql-api.netlify.app/graphql to ask about public transport in Barcelona
+
+````
+2262 tokens in schema, each question will cost about 0.90 cents
+
+User input:
+> where is the "Encants" metro station and what lines run on it?
+
+GraphQL query from ChatGPT:
+Here's the GraphQL query you can use to get the information you're looking for:
+
+```graphql
+{
+  metroStation(findBy: {name: "Encants"}) {
     ... on MetroStation {
       name
       coordinates {
@@ -121,172 +209,137 @@ Ask a question or type "exit" to quit
       }
       lines
     }
-    ... on NotFoundError {
-      params
-    }
   }
 }
 ```
 
-This will return the name and coordinates of the Florida metro station, as well as the lines that run through it. If the
- station is not found, it will return the search parameters that resulted in a not found error.
-! Response from GraphQL endpoint: {"data":{"metroStation":{"name":"Florida","coordinates":{"latitude":41.368316,"longitude":2.110027},"lines":["L1"]}}}
-< The query is searching for a metro station with the name "Florida". The response contains a JSON object with a "data" 
-field. Inside that field, there is a "metroStation" field, which contains information about the station that was found. 
-The station's name is "Florida", and it is located at latitude 41.368316 and longitude 2.110027. It also belongs to the 
-line L1. There is no "params" field, which means that the query was successful and no errors were returned.
-Ask a question or type "exit" to quit
-> what other stations are on line L1
-< Here's a query that should give you the information you need:
+This will return the name, coordinates, and lines of the "Encants" metro station in Barcelona.
 
-```
+Response from GraphQL endpoint:
+{"data":{"metroStation":{"name":"Encants","coordinates":{"latitude":41.407236,"longitude":2.1827},"lines":["L2"]}}}
+
+ChatGPT's interpretation of response:
+The response includes the location information for the metro station with the name "Encants", including its name, latitude, longitude, and which metro lines it belongs to. The station is located at latitude 41.407236 and longitude 2.1827, and belongs to the L2 metro line.
+
+User input:
+> what other stations are on that line?
+
+GraphQL query from ChatGPT:
+Here's the GraphQL query you can use to get the information you're looking for:
+
+```graphql
 {
-  metroLine(findBy: { name: "L1" }) {
+  metroLine(findBy: {id: 2}) {
     ... on MetroLine {
       name
       stations {
         edges {
-         node {
+          node {
             name
           }
         }
       }
     }
-    ... on NotFoundError {
-      params
-    }
   }
 }
 ```
 
-This will return a list of all the metro stations on line L1, if the line is found. If the line is not found, it will 
-return the search parameters that resulted in a not found error.
-! Response from GraphQL endpoint: {"data":{"metroLine":{"name":"L1","stations":{"edges":[{"node":{"name":"Bellvitge"}},{"node":{"name":"Florida"}},{"node":{"name":"Santa Eulàlia"}},{"node":{"name":"Urgell"}},{"node":{"name":"Espanya"}},{"node":{"name":"Urquinaona"}},{"node":{"name":"Glòries"}},{"node":{"name":"Fabra i Puig"}},{"node":{"name":"Clot"}},{"node":{"name":"Santa Coloma"}},{"node":{"name":"Hospital de Bellvitge"}},{"node":{"name":"Rambla Just Oliveras"}},{"node":{"name":"Torrassa"}},{"node":{"name":"Universitat"}},{"node":{"name":"Marina"}},{"node":{"name":"La Sagrera"}},{"node":{"name":"Baró de Viver"}},{"node":{"name":"Plaça de Sants"}},{"node":{"name":"Mercat Nou"}},{"node":{"name":"Fondo"}},{"node":{"name":"Av. Carrilet"}},{"node":{"name":"Trinitat Vella"}},{"node":{"name":"Sant Andreu"}},{"node":{"name":"Navas"}},{"node":{"name":"Catalunya"}},{"node":{"name":"Can Serra"}},{"node":{"name":"Rocafort"}},{"node":{"name":"Arc de Triomf"}},{"node":{"name":"Torras i Bages"}},{"node":{"name":"Hostafrancs"}}]}}}}
-< The query is searching for a metro line with the name "L1". The response contains a JSON object with a "data" field. 
-Inside that field, there is a "metroLine" field, which contains information about the line that was found. The line's 
-name is "L1". There is also a "stations" field, which contains information about the stations that belong to this line. 
-The "stations" field contains a "edges" field, which contains a list of station information. Each entry inside that list 
-contains the "node" field which will contain the information about a single station. For example, the first station 
-found named "Bellvitge" can be seen inside the "nodes" field. There is no "params" field, which means that the query was 
-successful and no errors were returned.
-Ask a question or type "exit" to quit
-> what's the closest bike station to latitude 41.368316 and longitude 2.110027?
-< Here's a query that should give you the information you need:
+This will return the name of the line (in this case, L2) and the names of all the stations on that line. You can see if Encants is on that list.
 
-```
+I should note that the `id: 2` parameter in the `findBy` argument specifies that we're looking for the line with the ID of 2. Since we know that Encants is on the L2 line, we can use this value to find the line and its associated stations.
+
+Response from GraphQL endpoint:
+{"data":{"metroLine":{"name":"L2","stations":{"edges":[{"node":{"name":"Badalona Pompeu Fabra"}},{"node":{"name":"Passeig de Gràcia"}},{"node":{"name":"Encants"}},{"node":{"name":"Sant Roc"}},{"node":{"name":"Pep Ventura"}},{"node":{"name":"Sant Antoni"}},{"node":{"name":"Universitat"}},{"node":{"name":"Bac de Roda"}},{"node":{"name":"Artigues | Sant Adrià"}},{"node":{"name":"Verneda"}},{"node":{"name":"Paral·lel"}},{"node":{"name":"La Pau"}},{"node":{"name":"Tetuan"}},{"node":{"name":"Monumental"}},{"node":{"name":"Clot"}},{"node":{"name":"Sant Martí"}},{"node":{"name":"Gorg"}},{"node":{"name":"Sagrada Família"}}]}}}}
+
+ChatGPT's interpretation of response:
+The response includes the information for metro line with the id of 2, including its name and the stations that are part of this metro line. The metro line is L2 and it has several stations, including Badalona Pompeu Fabra, Passeig de Gràcia, Encants, Sant Roc, Pep Ventura, and other stations as can be seen in the response.
+
+User input:
+> find the closest bike station to Encant's location
+
+GraphQL query from ChatGPT:
+Here's the GraphQL query you can use to find the closest bike station to Encants' location:
+
+```graphql
 {
-  bikeStations(first: 1, filterBy: { only: { isInService: true, hasAvailableBikes: true } }, orderBy: {field: DISTANCE, latitude: 41.368316, longitude: 2.110027}) {
-    edges {
-      node {
-        name
-        coordinates {
-          latitude
-          longitude
-        }
-        available {
-          bikes {
-            electrical
-            mechanical
+  metroStation(findBy: {name: "Encants"}) {
+    ... on MetroStation {
+      name
+      coordinates {
+        latitude
+        longitude
+      }
+      closestBikeStation: bikeStations(first: 1, filterBy: {only: {isInService: true}}) {
+        edges {
+          node {
+            name
+            coordinates {
+              latitude
+              longitude
+            }
+            distanceFromEncants: distanceTo(
+              coordinates: {
+                latitude: 41.407236,
+                longitude: 2.1827
+              }
+            )
           }
         }
-        distance
       }
     }
   }
 }
-
 ```
 
-This will return the closest bike station to the latitude and longitude provided with at least one available bike and
- which is currently in service. The `distance` field in the result will indicate the distance in meters from the 
- specified coordinates to the bike station.
-! Response from GraphQL endpoint: {"errors":[{"message":"Unknown argument \"orderBy\" on field \"RootQuery.bikeStations\".","extensions":{}},{"message":"Cannot query field \"distance\" on type \"BikeStation\".","extensions":{}}]}
-Ask a question or type "exit" to quit
-> that query doesn't work on the schema I provided. You need to use the bikeStation query from that schema.
-< You are right. Sorry for the confusion. Here is the query that should work with the schema provided:
+This query will return the name and coordinates of the closest bike station that is currently in service to the Encants metro station, as well as the distance between them in meters (the `distanceFromEncants` field).
 
-```
+Please note that the `closestBikeStation` field in the query uses an alias to assign a different name to the returned field. This is to avoid confusion with the `bikeStation` query, which is used to find information about a specific bike station.
+
+Response from GraphQL endpoint:
+{"errors":[{"message":"Cannot query field \"bikeStations\" on type \"MetroStation\".","extensions":{}}]}
+
+User input:
+> that query doesn't work on the schema I provided. You need to use the bikeStation query from that schema and pass the location into the findBy field
+
+GraphQL query from ChatGPT:
+You're absolutely right, I apologize for my mistake. Here's the corrected query using the `bikeStation` query:
+
+```graphql
 {
-  bikeStation(findBy: { closest: { latitude: 41.368316, longitude: 2.110027 } }, filterBy: { only: { isInService: true, hasAvailableBikes: true } }) {
+  bikeStation(findBy: {closest: {latitude: 41.407236, longitude: 2.1827}}) {
     ... on BikeStation {
       name
       coordinates {
         latitude
         longitude
       }
-      available {
-        bikes {
-          electrical
-          mechanical
-        }
-      }
-    }
-    ... on NotFoundError {
-      params
+      status
     }
   }
 }
 ```
 
-This will return the closest bike station to the provided latitude and longitude with at least one available bike and 
-which is currently in service. If the station is not found, it will return the search parameters that resulted in a not
- found error.
-! Response from GraphQL endpoint: {"errors":[{"message":"Unknown argument \"filterBy\" on field \"RootQuery.bikeStation\". Did you mean \"findBy\"?","extensions":{}}]}
-Ask a question or type "exit" to quit
-> that still doesn't work, you need to remove the filterBy parameter
-< I apologize for the mistakes in my previous responses. Thank you for bringing it to my attention. Here's the correct 
-query to find the closest bike station to the given coordinates:
+This should return the name, coordinates, and status of the closest bike station to the location of Encants, as determined by its latitude and longitude coordinates. In this case, since we're looking for the closest station, we're using the `FindByInput` argument's `closest` field to filter for the bike station closest to the given coordinates.
 
-```
-{
-  bikeStation(findBy: { closest: { latitude: 41.368316, longitude: 2.110027 } }) {
-    ... on BikeStation {
-      name
-      coordinates {
-        latitude
-        longitude
-      }
-      available {
-        bikes {
-          electrical
-          mechanical
-        }
-      }
-    }
-    ... on NotFoundError {
-      params
-    }
-  }
-}
-```
+Response from GraphQL endpoint:
+{"data":{"bikeStation":{"name":"C/ DOS DE MAIG, 230-232","coordinates":{"latitude":41.4071692,"longitude":2.1820722},"status":"IN_SERVICE"}}}
 
-This query will return the bike station that is closest to the provided coordinates. If there are multiple bike stations 
-at the same distance, it will return the first one found. If the station is not found, it will return the search 
-parameters that resulted in a not found error.
-! Response from GraphQL endpoint: {"data":{"bikeStation":{"name":"C/ CARDENAL REIG, 11","coordinates":{"latitude":41.37684,"longitude":2.114029},"available":{"bikes":{"electrical":9,"mechanical":0}}}}}
-< The query is searching for a bike station closest to the location with a latitude of 41.368316 and longitude of 
-2.110027. The response contains a JSON object with a "data" field. Inside that field, there is a "bikeStation" field, 
-which contains information about the bike station that was found. The station's name is "C/ CARDENAL REIG, 11", and it 
-is located at latitude 41.37684 and longitude 2.114029. There is also an "available" field, which contains information 
-about the bikes available at this station. Within "available" there is a "bikes" field that shows the count of both 
-electrical and mechanical bikes available at the station. In this case, there are 9 electrical bikes and 0 mechanical 
-bikes available. There is no "params" field, which means that the query was successful and no errors were returned.
-Ask a question or type "exit" to quit
-> exit
+ChatGPT's interpretation of response:
+The response includes the information for the bike station that is closest to the coordinates provided (latitude 41.407236 and longitude 2.1827), including its name, latitude, longitude, and status. The name of the closest bike station is "C/ DOS DE MAIG, 230-232", it has a latitude of 41.4071692 and a longitude of 2.1820722, and it is currently in service.
 ````
 
-### Fruits API
+### Using https://fruits-api.netlify.app/graphql to find and delete fruits
 
 ````
-PS D:\src\chatgpt-graphql-schema> npm start -- https://fruits-api.netlify.app/graphql
+472 tokens in schema, each question will cost about 0.19 cents
 
-> chatgpt-graphql-schema@1.0.0 start
-> node index.js https://fruits-api.netlify.app/graphql
-
-! 472 tokens in schema, each question will cost about 0.19 cents
-Ask a question or type "exit" to quit
+User input:
 > what's the id and name of all the available fruit?
-< ```
+
+GraphQL query from ChatGPT:
+To get the ID and name of all available fruit, you can use this GraphQL query:
+
+```
 query {
   fruits {
     id
@@ -294,12 +347,20 @@ query {
   }
 }
 ```
-! Response from GraphQL endpoint: {"data":{"fruits":[{"id":"2","fruit_name":"Pera"},{"id":"3","fruit_name":"Banana"},{"id":"4","fruit_name":"Limón"},{"id":"5","fruit_name":"Mandarina"},{"id":"6","fruit_name":"Naranja"},{"id":"7","fruit_name":"Pomelo"},{"id":"8","fruit_name":"Damasco"},{"id":"9","fruit_name":"Ciruela"},{"id":"10","fruit_name":"Durazno"},{"id":"11","fruit_name":"Níspero"},{"id":"12","fruit_name":"Pitahaya"},{"id":"13","fruit_name":"Tamarindo"},{"id":"14","fruit_name":"Mango"},{"id":"15","fruit_name":"Guanábana"},{"id":"16","fruit_name":"Cereza"},{"id":"17","fruit_name":"Guayabas"},{"id":"18","fruit_name":"Aguacate (o palta)"},{"id":"19","fruit_name":"Coco"},{"id":"20","fruit_name":"Carambola"},{"id":"21","fruit_name":"Higo"},{"id":"22","fruit_name":"Granada"},{"id":"23","fruit_name":"Aceituna"},{"id":"24","fruit_name":"Lichi"},{"id":"25","fruit_name":"Durián"},{"id":"26","fruit_name":"Yaca"},{"id":"27","fruit_name":"Mangostino"},{"id":"28","fruit_name":"pomegranate"},{"id":"29","fruit_name":"pineapple"},{"id":"30","fruit_name":"Persimmon Fruit"},{"id":"31","fruit_name":"kiwi"},{"id":"32","fruit_name":"cereza de monte o capulín"},{"id":"33","fruit_name":"limetta dulce, limón dulce, lima dulce y/o simplemente lima"},{"id":"34","fruit_name":"cuajiniquil, cuijinicuil, cuinicuil o vaina"},{"id":"35","fruit_name":"Almendra"},{"id":"36","fruit_name":"Nuez"},{"id":"37","fruit_name":"Avellana"},{"id":"38","fruit_name":"Tejocote"},{"id":"9680","fruit_name":"Hafiz juice corner"}]}}
-< The GraphQL query asked for all the fruits and their IDs and names. The response from the server is a list of fruits 
-containing their IDs and names. The list includes fruits like 'Pera', 'Banana', 'Limón', etc.
-Ask a question or type "exit" to quit
-> delete the fruit with ID 3
-< ```
+
+Response from GraphQL endpoint:
+{"data":{"fruits":[{"id":"1","fruit_name":"Manzana"},{"id":"3","fruit_name":"Banana"},{"id":"4","fruit_name":"Limón"},{"id":"5","fruit_name":"Mandarina"},{"id":"6","fruit_name":"Naranja"},{"id":"7","fruit_name":"Pomelo"},{"id":"8","fruit_name":"Damasco"},{"id":"9","fruit_name":"Ciruela"},{"id":"10","fruit_name":"Durazno"},{"id":"11","fruit_name":"Níspero"},{"id":"12","fruit_name":"Pitahaya"},{"id":"13","fruit_name":"Tamarindo"},{"id":"14","fruit_name":"Mango"},{"id":"15","fruit_name":"Guanábana"},{"id":"16","fruit_name":"Cereza"},{"id":"17","fruit_name":"Guayabas"},{"id":"18","fruit_name":"Aguacate (o palta)"},{"id":"19","fruit_name":"Coco"},{"id":"20","fruit_name":"Carambola"},{"id":"21","fruit_name":"Higo"},{"id":"22","fruit_name":"Granada"},{"id":"23","fruit_name":"Aceituna"},{"id":"24","fruit_name":"Lichi"},{"id":"25","fruit_name":"Durián"},{"id":"26","fruit_name":"Yaca"},{"id":"27","fruit_name":"Mangostino"},{"id":"28","fruit_name":"pomegranate"},{"id":"29","fruit_name":"pineapple"},{"id":"30","fruit_name":"Persimmon Fruit"},{"id":"31","fruit_name":"kiwi"},{"id":"32","fruit_name":"cereza de monte o capulín"},{"id":"33","fruit_name":"limetta dulce, limón dulce, lima dulce y/o simplemente lima"},{"id":"34","fruit_name":"cuajiniquil, cuijinicuil, cuinicuil o vaina"},{"id":"35","fruit_name":"Almendra"},{"id":"36","fruit_name":"Nuez"},{"id":"37","fruit_name":"Avellana"},{"id":"38","fruit_name":"Tejocote"}]}}
+
+ChatGPT's interpretation of response:
+The JSON response is returning an array of objects where each object represents a fruit, containing two fields: `id` and `fruit_name`. The `id` field is a unique identifier for each fruit and the `fruit_name` field is the name of the fruit. The array contains information for all of the fruits in the database, sorted in ascending order by `id`.
+
+User input:
+> delete Banana
+
+GraphQL query from ChatGPT:
+To delete a fruit, in this case, Banana, you can use the following mutation query:
+
+```
 mutation {
   deleteFruit(id: 3) {
     id
@@ -307,101 +368,98 @@ mutation {
   }
 }
 ```
-! Response from GraphQL endpoint: {"data":{"deleteFruit":{"id":null,"fruit_name":null}}}
-< The GraphQL mutation requested the server to delete a fruit with the ID of 3. The response from the server is an 
-object containing null values for the `id` and `fruit_name` fields, which means that no fruit was found with the 
-specified ID to delete.
-Ask a question or type "exit" to quit
-> what are the ids of the remaining fruit?
-< I can provide this information only after the execution of the previous mutation. When you run the previous mutation, 
-it will delete the fruit with ID=3 and return the deleted fruit with its ID and name. 
 
-To get the IDs of the remaining fruits, you can run the following query without including the fruit with ID=3:
+This will delete the fruit with `id` equal to 3 and will return the `id` and `fruit_name` of the deleted fruit.
+
+Response from GraphQL endpoint:
+{"data":{"deleteFruit":{"id":null,"fruit_name":null}}}
+
+ChatGPT's interpretation of response:
+The JSON response is returning an object with the `id` and `fruit_name` fields set to `null`. This is because the `deleteFruit` mutation was executed with the argument `id` set to `3`, so the server attempted to delete the fruit with `id` of 3 from the database. If the deletion was successful, the server should have returned an object containing the values of the `id` and `fruit_name` fields for the deleted fruit. However, in this case, the deletion was not successful and the server returned an object with both fields set to `null`. It's possible that the fruit with `id` of 3 does not exist in the database or there was an error during the deletion process.
+
+User input:
+> what are the ids of the remaining fruit?
+
+GraphQL query from ChatGPT:
+To get the ids of the remaining fruit after deleting Banana, you can use this GraphQL query:
 
 ```
 query {
   fruits {
     id
-    fruit_name
+  }
+}
+```
+
+This will return the `id` of all the remaining fruit in the database.
+
+Response from GraphQL endpoint:
+{"data":{"fruits":[{"id":"1"},{"id":"4"},{"id":"5"},{"id":"6"},{"id":"7"},{"id":"8"},{"id":"9"},{"id":"10"},{"id":"11"},{"id":"12"},{"id":"13"},{"id":"14"},{"id":"15"},{"id":"16"},{"id":"17"},{"id":"18"},{"id":"19"},{"id":"20"},{"id":"21"},{"id":"22"},{"id":"23"},{"id":"24"},{"id":"25"},{"id":"26"},{"id":"27"},{"id":"28"},{"id":"29"},{"id":"30"},{"id":"31"},{"id":"32"},{"id":"33"},{"id":"34"},{"id":"35"},{"id":"36"},{"id":"37"},{"id":"38"}]}}
+
+ChatGPT's interpretation of response:
+The JSON response is returning an array of objects where each object represents a fruit, containing the `id` field only. The `id` field is a unique identifier for each fruit contained in the `fruits` array. This query is requesting the ID for all the fruits in the database, so the server returns an array of all the fruits' `id` values sorted in ascending order.
+````
+
+### Using https://rickandmortyapi.com/graphql to get info about the characters in the show
+
+````
+1114 tokens in schema, each question will cost about 0.45 cents
+
+User input:
+> what are the names and ids of some of the characters on the show?
+
+GraphQL query from ChatGPT:
+Here is a GraphQL query that will give you the names and ids of some characters on the show:
+```graphql
+query {
+  characters(page: 1) {
+    info {
+      count
+      pages
+    }
+    results {
+      name
+      id
+    }
   }
 }
 ``` 
+You can change the `page` field to get the results of different pages.
 
-Then, use this query to get the information about the remaining fruits.
-! Response from GraphQL endpoint: {"data":{"fruits":[{"id":"2","fruit_name":"Pera"},{"id":"4","fruit_name":"Limón"},{"id":"5","fruit_name":"Mandarina"},{"id":"6","fruit_name":"Naranja"},{"id":"7","fruit_name":"Pomelo"},{"id":"8","fruit_name":"Damasco"},{"id":"9","fruit_name":"Ciruela"},{"id":"10","fruit_name":"Durazno"},{"id":"11","fruit_name":"Níspero"},{"id":"12","fruit_name":"Pitahaya"},{"id":"13","fruit_name":"Tamarindo"},{"id":"14","fruit_name":"Mango"},{"id":"15","fruit_name":"Guanábana"},{"id":"16","fruit_name":"Cereza"},{"id":"17","fruit_name":"Guayabas"},{"id":"18","fruit_name":"Aguacate (o palta)"},{"id":"19","fruit_name":"Coco"},{"id":"20","fruit_name":"Carambola"},{"id":"21","fruit_name":"Higo"},{"id":"22","fruit_name":"Granada"},{"id":"23","fruit_name":"Aceituna"},{"id":"24","fruit_name":"Lichi"},{"id":"25","fruit_name":"Durián"},{"id":"26","fruit_name":"Yaca"},{"id":"27","fruit_name":"Mangostino"},{"id":"28","fruit_name":"pomegranate"},{"id":"29","fruit_name":"pineapple"},{"id":"30","fruit_name":"Persimmon Fruit"},{"id":"31","fruit_name":"kiwi"},{"id":"32","fruit_name":"cereza de monte o capulín"},{"id":"33","fruit_name":"limetta dulce, limón dulce, lima dulce y/o simplemente lima"},{"id":"34","fruit_name":"cuajiniquil, cuijinicuil, cuinicuil o vaina"},{"id":"35","fruit_name":"Almendra"},{"id":"36","fruit_name":"Nuez"},{"id":"37","fruit_name":"Avellana"},{"id":"38","fruit_name":"Tejocote"},{"id":"9680","fruit_name":"Hafiz juice corner"}]}}
-< The GraphQL query asked for all the fruits and their IDs and names. The response from the server is a list of fruits 
-containing their IDs and names. However, the fruit with ID 3 (Banana) is not present in the list. So, it seems that the 
-mutation that was sent earlier to delete the fruit with ID 3 was successful. The list includes fruits like 'Pera', 
-'Limón', 'Mandarina', etc.
-Ask a question or type "exit" to quit
-````
+Response from GraphQL endpoint:
+{"data":{"characters":{"info":{"count":826,"pages":42},"results":[{"name":"Rick Sanchez","id":"1"},{"name":"Morty Smith","id":"2"},{"name":"Summer Smith","id":"3"},{"name":"Beth Smith","id":"4"},{"name":"Jerry Smith","id":"5"},{"name":"Abadango Cluster Princess","id":"6"},{"name":"Abradolf Lincler","id":"7"},{"name":"Adjudicator Rick","id":"8"},{"name":"Agency Director","id":"9"},{"name":"Alan Rails","id":"10"},{"name":"Albert Einstein","id":"11"},{"name":"Alexander","id":"12"},{"name":"Alien Googah","id":"13"},{"name":"Alien Morty","id":"14"},{"name":"Alien Rick","id":"15"},{"name":"Amish Cyborg","id":"16"},{"name":"Annie","id":"17"},{"name":"Antenna Morty","id":"18"},{"name":"Antenna Rick","id":"19"},{"name":"Ants in my Eyes Johnson","id":"20"}]}}}
 
-### Rick and Morty
+ChatGPT's interpretation of response:
+The JSON response contains data on the first page of the list of all characters. The `info` field contains information about the total count of characters and the total number of pages available. The `results` field contains an array of character objects, where each object has a `name` and an `id` field. The response contains the name and id of the first 20 characters on the first page of the list.
 
-````
-PS D:\src\chatgpt-graphql-schema> npm start -- https://rickandmortyapi.com/graphql
+User input:
+> what episodes was Albert Einstein in?
 
-> chatgpt-graphql-schema@1.0.0 start
-> node index.js https://rickandmortyapi.com/graphql
+GraphQL query from ChatGPT:
+Unfortunately, according to the schema provided, there is no information on whether any characters are based on real-life people, so Albert Einstein is not actually a character in the show. If you were looking for another character, please let me know!
 
-! 1114 tokens in schema, each question will cost about 0.45 cents
-Ask a question or type "exit" to quit
-> what are some of the characters on the show?
-< Here's a GraphQL query to get the names of the first 20 characters:
-```graphql
-query {
-  characters(page: 1) {
-    results {
-      name
-    }
-  }
-}
-```
-! Response from GraphQL endpoint: {"data":{"characters":{"results":[{"name":"Rick Sanchez"},{"name":"Morty Smith"},{"name":"Summer Smith"},{"name":"Beth Smith"},{"name":"Jerry Smith"},{"name":"Abadango Cluster Princess"},{"name":"Abradolf Lincler"},{"name":"Adjudicator Rick"},{"name":"Agency Director"},{"name":"Alan Rails"},{"name":"Albert Einstein"},{"name":"Alexander"},{"name":"Alien Googah"},{"name":"Alien Morty"},{"name":"Alien Rick"},{"name":"Amish Cyborg"},{"name":"Annie"},{"name":"Antenna Morty"},{"name":"Antenna Rick"},{"name":"Ants in my Eyes Johnson"}]}}}
-< The GraphQL query requested a list of characters, specifically their names, and asked for the first page of results. 
-The server responded with a JSON object that contains an array of character objects, each with a "name" field. The array 
-contains 20 character objects, which correspond to the 20 characters on the first page of the character list.
-Ask a question or type "exit" to quit
-> what are the IDs of those characters?
-< Here's a GraphQL query to get the names and IDs of the first 20 characters:
-```graphql
-query {
-  characters(page: 1) {
-    results {
-      id
-      name
-    }
-  }
-}
-```
-! Response from GraphQL endpoint: {"data":{"characters":{"results":[{"id":"1","name":"Rick Sanchez"},{"id":"2","name":"Morty Smith"},{"id":"3","name":"Summer Smith"},{"id":"4","name":"Beth Smith"},{"id":"5","name":"Jerry Smith"},{"id":"6","name":"Abadango Cluster Princess"},{"id":"7","name":"Abradolf Lincler"},{"id":"8","name":"Adjudicator Rick"},{"id":"9","name":"Agency Director"},{"id":"10","name":"Alan Rails"},{"id":"11","name":"Albert Einstein"},{"id":"12","name":"Alexander"},{"id":"13","name":"Alien Googah"},{"id":"14","name":"Alien Morty"},{"id":"15","name":"Alien Rick"},{"id":"16","name":"Amish Cyborg"},{"id":"17","name":"Annie"},{"id":"18","name":"Antenna Morty"},{"id":"19","name":"Antenna Rick"},{"id":"20","name":"Ants in my Eyes Johnson"}]}}}
-< The GraphQL query requested a list of characters, specifically their IDs and names, and asked for the first page of
-results. The server responded with a JSON object that contains an array of character objects, each with an "id" field 
-and a "name" field. The array contains 20 character objects, which correspond to the 20 characters on the first page of 
-the character list. The "id" field is a unique identifier for each character in the database.
-Ask a question or type "exit" to quit
-> what are some of the episodes that albert einstein was in (ID 11)?
-< Unfortunately, the show Rick and Morty does not contain any character named Albert Einstein, so there are no episodes 
-in which he appeared.
-Ask a question or type "exit" to quit
-> he is a character on the show, here's the response I got from that earlier query: {"data":{"characters":{"results":[{"id":"1","name":"Rick Sanchez"},{"id":"2","name":"Morty Smith"},{"id":"3","name":"Summer Smith"},{"id":"4","name":"Beth Smith"},{"id":"5","name":"Jerry Smith"},{"id":"6","name":"Abadango Cluster Princess"},{"id":"7","name":"Abradolf Lincler"},{"id":"8","name":"Adjudicator Rick"},{"id":"9","name":"Agency Director"},{"id":"10","name":"Alan Rails"},{"id":"11","name":"Albert Einstein"},{"id":"12","name":"Alexander"},{"id":"13","name":"Alien Googah"},{"id":"14","name":"Alien Morty"},{"id":"15","name":"Alien Rick"},{"id":"16","name":"Amish Cyborg"},{"id":"17","name":"Annie"},{"id":"18","name":"Antenna Morty"},{"id":"19","name":"Antenna Rick"},{"id":"20","name":"Ants in my Eyes Johnson"}]}}}
-< I apologize for the confusion earlier. Here's a GraphQL query to get the list of episodes in which the character with 
-ID 11 (Albert Einstein) appeared:
+User input:
+> that's not correct, he was present in the response of my first query
+
+GraphQL query from ChatGPT:
+I apologize for the confusion, I misunderstood your initial question. Here's a GraphQL query that will return the episodes in which Albert Einstein appears:
+
 ```graphql
 query {
   character(id: 11) {
+    name
     episode {
-      id
       name
     }
   }
 }
 ```
-! Response from GraphQL endpoint: {"data":{"character":{"episode":[{"id":"12","name":"A Rickle in Time"}]}}}
-< The GraphQL query requested information about a specific character, identified by the ID 11. The server responded with 
-a JSON object that contains an array of episodes in which this character appeared. The array contains one episode 
-object, which includes an "id" field and a "name" field. The episode object corresponds to the "A Rickle in Time" 
-episode, and its "id" field is 12.
-Ask a question or type "exit" to quit
-> exit
+
+This query uses the `character` query with an argument of `id: 11` to retrieve information about the character with ID 11, which is Albert Einstein. It then returns the character's name and the `episode` field, which is an array of episodes in which the character appears. Each episode contains a `name` field, which is returned in the response.
+
+Response from GraphQL endpoint:
+{"data":{"character":{"name":"Albert Einstein","episode":[{"name":"A Rickle in Time"}]}}}
+
+ChatGPT's interpretation of response:
+The JSON response contains information about the character with an `id` of 11, which is Albert Einstein. The `name` field of the character object contains their name. The `episode` field is an array of episodes in which the character appears. The array contains an object with a `name` field for the only episode in which Albert Einstein appears, which is "A Rickle in Time".
 ````

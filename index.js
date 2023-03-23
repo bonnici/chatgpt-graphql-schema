@@ -11,13 +11,13 @@ dotenv.config()
 const MAX_SCHEMA_CHARS = 100000;
 const MAX_SCHEMA_TOKENS = 3000;
 const COST_PER_TOKEN = 0.2 / 1000; // $0.002 (0.2c) per 1k tokens
-const CHATGPT_TIMEOUT = 30 * 1000; // 30 seconds
+const CHATGPT_TIMEOUT = 60 * 1000; // 1 minute
 
 const log = {
   error: (str) => console.error(chalk.red(str)),
-  info: (str) => console.info(chalk.white(`! ${str}`)),
+  info: (str) => console.info(chalk.white(str)),
   debug: (str) => { if (process.env.HIDE_DEBUG !== "true") console.info(chalk.dim(str)) },
-  response: (str) => console.info(chalk.bold(`< ${str}`)),
+  response: (str) => console.info(chalk.bold(str)),
 }
 
 if (process.argv.length !== 3) {
@@ -70,7 +70,7 @@ log.debug('Successfully initialised ChatGPT');
 const rl = readline.createInterface({ input, output });
 
 while (true) {
-  const question = await rl.question(chalk.white('Ask a question or type "exit" to quit' + chalk.bold('\n> ')));
+  const question = await rl.question(chalk.bold('\nUser input:\n> '));
   if (question === 'exit' || question === 'quit') {
     process.exit(0);
   }
@@ -93,9 +93,9 @@ while (true) {
     continue;
   }
 
-  log.response(queryChatMessage.content);
+  log.response(`\nGraphQL query from ChatGPT:\n${queryChatMessage.content}`);
 
-  const codeBlocks = queryChatMessage.content.match(/^```(graphql)?(?<query>(\n|.)*?)```$/m);
+  const codeBlocks = queryChatMessage.content.match(/```(graphql)?(?<query>(\n|.)*?)```/m);
   const graphQlQuery = codeBlocks?.groups?.query;
   if (!graphQlQuery) {
     continue;
@@ -110,17 +110,20 @@ while (true) {
   });
   var queryResultJson = await queryResult.json()
   const queryResultString = JSON.stringify(queryResultJson);
-  log.info(`Response from GraphQL endpoint: ${queryResultString}`);
+  log.info(`\nResponse from GraphQL endpoint:\n${queryResultString}`);
 
   const queryAndResponse = `I sent this query:\n\`\`\`${graphQlQuery}\n\`\`\`\n and got this response:\n\`\`\`${queryResultString}\n\`\`\`\n`;
   queryMessages.push({ role: 'user', content: queryAndResponse });
 
   if (queryResultJson.errors) {
+    log.debug('Response contained errors, so going back to user input');
     continue;
   }
 
+  const interpretPrompt = 'What is the English interpretation of that JSON response?';
   interpretMessages.push({ role: 'user', content: queryAndResponse });
-  interpretMessages.push({ role: 'user', content: 'What do the JSON contents of that response mean in english?' });
+  interpretMessages.push({ role: 'user', content: interpretPrompt });
+
   log.debug('Asking ChatGPT to interpret the results ...');
   var intepretChatMessage;
   try {
@@ -132,5 +135,5 @@ while (true) {
     continue;
   }
 
-  log.response(intepretChatMessage.content);
+  log.response(`\nChatGPT's interpretation of response:\n${intepretChatMessage.content}`);
 }
