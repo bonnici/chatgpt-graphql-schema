@@ -58,13 +58,52 @@ const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
 });
 const openai = new OpenAIApi(configuration);
-const queryPrompt = 'I am going to give you a GraphQL SDL schema document and ask you to generate GraphQL queries for me. ' + 
+const querySystemPrompt = 'I am going to give you a GraphQL SDL schema document and ask you to generate GraphQL queries for me. ' + 
   "Your responses should include a code block with the full query text I should use to get the information I'm asking for.";
-const interpretPrompt = 'I am going to give you a GraphQL SDL schema document and ask you to explain the JSON response ' +
+const interpretSystemPrompt = 'I am going to give you a GraphQL SDL schema document and ask you to explain the JSON response ' +
   'that I get back from the server after I send a GraphQL request.';
-const schemaBlock = 'Here is the schema:\n```\n' + sdlString + '\n```';
-var queryMessages = [{ role: 'system', content: `${queryPrompt} ${schemaBlock}` }];
-var interpretMessages = [{ role: 'system', content: `${interpretPrompt} ${schemaBlock}` }];
+const sampleSchema = `Here is the schema:
+\`\`\`
+type Query {
+  users: [User!]!
+  user(id: ID!): User
+}
+
+type Mutation {
+  createUser(name: String!): User!
+}
+
+type User {
+  id: ID!
+  name: String!
+}
+\`\`\``;
+const querySampleQuestion = 'What is the name of user 2?';
+const querySampleResponse = `\`\`\`
+{
+  user(id: 2) {
+    name
+  }
+}\`\`\``;
+const resultSampleQuestion = `I sent this query:\n${querySampleResponse}\n and got this response:\n\`\`\`{"data":{"user":{"name":"Nick Marsh"}}}\n\`\`\`\n`;
+const interpretPrompt = 'What is the English interpretation of that JSON response?';
+const resultSampleResponse = 'The name of the user with ID 2 is "Nick Marsh".';
+const schemaBlock = 'Here is another schema, use only this one and not the earlier schema you were sent:\n```\n' + sdlString + '\n```';
+var queryMessages = [
+  { role: 'system', content: querySystemPrompt }, 
+  { role: 'system', content: sampleSchema }, 
+  { role: 'user', content: querySampleQuestion }, 
+  { role: 'assistant', content: querySampleResponse },
+  { role: 'system', content: schemaBlock }
+];
+var interpretMessages = [
+  { role: 'system', content: interpretSystemPrompt }, 
+  { role: 'system', content: sampleSchema }, 
+  { role: 'user', content: resultSampleQuestion }, 
+  { role: 'user', content: interpretPrompt }, 
+  { role: 'assistant', content: resultSampleResponse },
+  { role: 'system', content: schemaBlock }
+];
 log.debug('Successfully initialised ChatGPT');
 
 const rl = readline.createInterface({ input, output });
@@ -120,7 +159,6 @@ while (true) {
     continue;
   }
 
-  const interpretPrompt = 'What is the English interpretation of that JSON response?';
   interpretMessages.push({ role: 'user', content: queryAndResponse });
   interpretMessages.push({ role: 'user', content: interpretPrompt });
 
