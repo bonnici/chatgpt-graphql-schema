@@ -29,12 +29,12 @@ const endpoint = process.argv[2];
 
 log.debug(`Getting schema from ${endpoint} ...`);
 
-var introspectionResult = await fetch(endpoint, {
+let introspectionResult = await fetch(endpoint, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({ query: getIntrospectionQuery() })
 });
-var introspectionResultJson = await introspectionResult.json()
+let introspectionResultJson = await introspectionResult.json()
 const charCount = JSON.stringify(introspectionResultJson.data).length;
 if (charCount > MAX_SCHEMA_CHARS) {
   log.error(`Too many characters in schema (${charCount})`);
@@ -58,10 +58,10 @@ const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
 });
 const openai = new OpenAIApi(configuration);
-const querySystemPrompt = 'I am going to give you a GraphQL SDL schema document and ask you to generate GraphQL queries for me. ' + 
-  "Your responses should include a code block with the full query text I should use to get the information I'm asking for.";
-const interpretSystemPrompt = 'I am going to give you a GraphQL SDL schema document and ask you to explain the JSON response ' +
-  'that I get back from the server after I send a GraphQL request.';
+const querySystemPrompt = "I am going to give you a GraphQL SDL schema document and ask you to generate GraphQL queries for me, " +
+"then I'll send you the JSON response I recieved from the API for that query and ask you to explain the results in English. " + 
+"When asked for a GraphQL query, you should only respond with the full query text I should use, and when asked to explain the " +
+"results, you should respond with a plain English description of the contents of the response.";
 const sampleSchema = `Here is the schema:
 \`\`\`
 type Query {
@@ -78,35 +78,78 @@ type User {
   name: String!
 }
 \`\`\``;
-const querySampleQuestion = 'What is the name of user 2?';
-const querySampleResponse = `\`\`\`
+const queryQuestion = (question) => `What GraphQL query should I send to answer the question: ${question}`
+const sampleQueryResponse = `\`\`\`
 {
   user(id: 2) {
     name
   }
 }\`\`\``;
-const resultSampleQuestion = `I sent this query:\n${querySampleResponse}\n and got this response:\n\`\`\`{"data":{"user":{"name":"Nick Marsh"}}}\n\`\`\`\n`;
-const interpretPrompt = 'What is the English interpretation of that JSON response?';
-const resultSampleResponse = 'The name of the user with ID 2 is "Nick Marsh".';
-const schemaBlock = 'Here is another schema, use only this one and not the earlier schema you were sent:\n```\n' + sdlString + '\n```';
-var queryMessages = [
+const explainQuestion = (response) => `I sent that query and got this response: \`${response}\`. Translate that response to English.`;
+const sampleExplainResponse = 'The name of the user with ID 2 is "Nick Marsh".';
+const schemaBlock = 'Here is another schema, from now on only use this schema when creating queries and explaining results:\n```\n' + sdlString + '\n```';
+let chatMessages = [
   { role: 'system', content: querySystemPrompt }, 
   { role: 'system', content: sampleSchema }, 
-  { role: 'user', content: querySampleQuestion }, 
-  { role: 'assistant', content: querySampleResponse },
-  { role: 'system', content: schemaBlock }
-];
-var interpretMessages = [
-  { role: 'system', content: interpretSystemPrompt }, 
-  { role: 'system', content: sampleSchema }, 
-  { role: 'user', content: resultSampleQuestion }, 
-  { role: 'user', content: interpretPrompt }, 
-  { role: 'assistant', content: resultSampleResponse },
+  { role: 'user', content: queryQuestion('what is the name of user 2?') }, 
+  { role: 'assistant', content: sampleQueryResponse },
+  { role: 'user', content: explainQuestion('{"data":{"user":{"name":"Nick Marsh"}}}') }, 
+  { role: 'assistant', content: sampleExplainResponse },
   { role: 'system', content: schemaBlock }
 ];
 log.debug('Successfully initialised ChatGPT');
 
 const rl = readline.createInterface({ input, output });
+
+async function parseAndPostQuery(messageContent, shouldRetry) {
+  const codeBlocks = messageContent.match(/```(graphql)?(?<query>(\n|.)*?)```/m);
+  const graphQlQuery = codeBlocks?.groups?.query;
+  if (!graphQlQuery) {
+    return null;
+  }
+  log.debug(`GraphQL request: ${graphQlQuery}`);
+
+  log.debug(`Querying GraphQL endpoint ${endpoint} ...`);
+  let queryResult = await fetch(endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query: graphQlQuery })
+  });
+  let queryResultJson = await queryResult.json()
+  const queryResultString = JSON.stringify(queryResultJson);
+  log.info(`\nResponse from GraphQL endpoint:\n${queryResultString}`);
+  
+  if (!queryResultJson.errors) {
+    return queryResultString;
+  }
+
+  if (!shouldRetry) {
+    return null;
+  }
+
+  log.debug('Response contained errors, asking for correction');
+
+  chatMessages.push({ role: 'user', content: `That query doesn't work on the schema I provided, can you try again? I got this error response when I sent the query to the API: \`${queryResultString}\`` });
+  let correctionChatMessage;
+  try {
+    const chatResponse = await openai.createChatCompletion({ model: 'gpt-3.5-turbo', messages: chatMessages }, { timeout: CHATGPT_TIMEOUT });
+    correctionChatMessage = chatResponse.data.choices[0].message;
+    chatMessages.push(correctionChatMessage);
+  } catch (e) {
+    log.error(`Error asking ChatGPT for query correction: ${e.message}`);
+    return null;
+  }
+  
+  log.response(`\nCorrected GraphQL query from ChatGPT:\n${correctionChatMessage.content}`);
+  const correctedResponse = await parseAndPostQuery(correctionChatMessage.content, false);
+
+  if (correctedResponse === null) {
+    log.debug('Response contained errors, so going back to user input');
+    return null;
+  } else {
+    return correctedResponse;
+  }
+}
 
 while (true) {
   const question = await rl.question(chalk.bold('\nUser input:\n> '));
@@ -119,55 +162,37 @@ while (true) {
     continue;
   }
 
-  queryMessages.push({ role: 'user', content: trimmed});
+  const queryQuestionMessage = queryQuestion(trimmed);
+  chatMessages.push({ role: 'user', content: queryQuestionMessage });
   
-  log.debug('Sending question to ChatGPT ...');
-  var queryChatMessage;
+  log.debug(`Sending question to ChatGPT: ${queryQuestionMessage}`);
+  let queryChatMessage;
   try {
-    const chatResponse = await openai.createChatCompletion({ model: 'gpt-3.5-turbo', messages: queryMessages }, { timeout: CHATGPT_TIMEOUT });
+    const chatResponse = await openai.createChatCompletion({ model: 'gpt-3.5-turbo', messages: chatMessages }, { timeout: CHATGPT_TIMEOUT });
     queryChatMessage = chatResponse.data.choices[0].message;
-    queryMessages.push(queryChatMessage);
+    chatMessages.push(queryChatMessage);
   } catch (e) {
     log.error(`Error sending question to ChatGPT: ${e.message}`);
     continue;
   }
 
   log.response(`\nGraphQL query from ChatGPT:\n${queryChatMessage.content}`);
+  const queryResultsString = await parseAndPostQuery(queryChatMessage.content, true);
 
-  const codeBlocks = queryChatMessage.content.match(/```(graphql)?(?<query>(\n|.)*?)```/m);
-  const graphQlQuery = codeBlocks?.groups?.query;
-  if (!graphQlQuery) {
-    continue;
-  }
-  log.debug(`GraphQL request: ${graphQlQuery}`);
-
-  log.debug(`Querying GraphQL endpoint ${endpoint} ...`);
-  var queryResult = await fetch(endpoint, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query: graphQlQuery })
-  });
-  var queryResultJson = await queryResult.json()
-  const queryResultString = JSON.stringify(queryResultJson);
-  log.info(`\nResponse from GraphQL endpoint:\n${queryResultString}`);
-
-  const queryAndResponse = `I sent this query:\n\`\`\`${graphQlQuery}\n\`\`\`\n and got this response:\n\`\`\`${queryResultString}\n\`\`\`\n`;
-  queryMessages.push({ role: 'user', content: queryAndResponse });
-
-  if (queryResultJson.errors) {
-    log.debug('Response contained errors, so going back to user input');
+  if (!queryResultsString) {
+    log.debug('Could not get a good response, so going back to user input');
     continue;
   }
 
-  interpretMessages.push({ role: 'user', content: queryAndResponse });
-  interpretMessages.push({ role: 'user', content: interpretPrompt });
+  const explainQuestionMessage = explainQuestion(queryResultsString);
+  chatMessages.push({ role: 'user', content: explainQuestionMessage });
 
-  log.debug('Asking ChatGPT to interpret the results ...');
-  var intepretChatMessage;
+  log.debug(`Asking ChatGPT to interpret the results: ${explainQuestionMessage}`);
+  let intepretChatMessage;
   try {
-    const chatResponse = await openai.createChatCompletion({ model: 'gpt-3.5-turbo', messages: interpretMessages }, { timeout: CHATGPT_TIMEOUT });
+    const chatResponse = await openai.createChatCompletion({ model: 'gpt-3.5-turbo', messages: chatMessages }, { timeout: CHATGPT_TIMEOUT });
     intepretChatMessage = chatResponse.data.choices[0].message;
-    interpretMessages.push(intepretChatMessage);
+    chatMessages.push(intepretChatMessage);
   } catch (e) {
     log.error(`Error asking ChatGPT to interpret the results: ${e.message}`);
     continue;
